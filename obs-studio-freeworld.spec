@@ -14,7 +14,7 @@
 %global libvlc_soversion 5
 
 Name:           obs-studio-freeworld
-Version:        29.1.0
+Version:        29.1.2
 Release:        1%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
@@ -264,6 +264,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Tue Jul 04 2023 Dominik Mierzejewski <dominik@greysector.net> - 29.1.2-1
+- Update to 29.1.2
+
 * Thu May 04 2023 Neal Gompa <ngompa@fedoraproject.org> - 29.1.0-1
 - Update to 29.1.0 final
 
