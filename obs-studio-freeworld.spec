@@ -5,7 +5,7 @@
 %bcond_without lua_scripting
 %endif
 
-%global obswebsocket_version 5.2.2
+%global obswebsocket_version 5.2.3
 %global origname obs-studio
 
 %if "%{__isa_bits}" == "64"
@@ -14,7 +14,7 @@
 %global libvlc_soversion 5
 
 Name:           obs-studio-freeworld
-Version:        29.1.2
+Version:        29.1.3
 Release:        1%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
@@ -264,6 +264,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Tue Jul 25 2023 Dominik Mierzejewski <dominik@greysector.net> - 29.1.3-1
+- Update to 29.1.3
+
 * Tue Jul 04 2023 Dominik Mierzejewski <dominik@greysector.net> - 29.1.2-1
 - Update to 29.1.2
 
