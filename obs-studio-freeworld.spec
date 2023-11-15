@@ -218,6 +218,12 @@ sed -e '\|set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OBS_LIBRARY_DESTINA
 # touch the missing submodules
 touch plugins/obs-browser/CMakeLists.txt
 
+%if ! %{with vpl}
+# disable unusable qsv plugin
+mv plugins/obs-qsv11/CMakeLists.txt plugins/obs-qsv11/CMakeLists.txt.disabled
+touch plugins/obs-qsv11/CMakeLists.txt
+%endif
+
 # remove -Werror flag to mitigate FTBFS with ffmpeg 5.1
 sed -e 's|-Werror-implicit-function-declaration||g' -i cmake/Modules/CompilerConfig.cmake
 sed -e '/-Werror/d' -i cmake/Modules/CompilerConfig.cmake
