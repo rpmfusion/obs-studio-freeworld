@@ -1,8 +1,8 @@
-From 4517d8d8bb4c43af1f5b757773a5f9550bd23d37 Mon Sep 17 00:00:00 2001
+From 939db8edca8161f4518900e750551814c2c6088e Mon Sep 17 00:00:00 2001
 From: Neal Gompa <neal@gompa.dev>
 Date: Sun, 26 Mar 2023 06:06:31 -0400
-Subject: [PATCH 2/3] obs-ffmpeg: Add initial support for the OpenH264 H.264
- software codec
+Subject: [PATCH 102/103] obs-ffmpeg: Add initial support for the OpenH264
+ H.264 software codec
 
 This allows users to leverage the OpenH264 codec from Cisco to encode
 H.264 video content. It is significantly reduced in capability from
@@ -20,19 +20,19 @@ software codecs provided through FFmpeg.
  create mode 100644 plugins/obs-ffmpeg/obs-ffmpeg-h264.c
 
 diff --git a/plugins/obs-ffmpeg/CMakeLists.txt b/plugins/obs-ffmpeg/CMakeLists.txt
-index 3eba00932..f97622c22 100644
+index 04530ef39..b77f6366f 100644
 --- a/plugins/obs-ffmpeg/CMakeLists.txt
 +++ b/plugins/obs-ffmpeg/CMakeLists.txt
-@@ -34,6 +34,7 @@ target_sources(
-           obs-ffmpeg-video-encoders.c
-           obs-ffmpeg-audio-encoders.c
+@@ -36,6 +36,7 @@ target_sources(
            obs-ffmpeg-av1.c
+           obs-ffmpeg-compat.h
+           obs-ffmpeg-formats.h
 +          obs-ffmpeg-h264.c
-           obs-ffmpeg-nvenc.c
-           obs-ffmpeg-output.c
+           obs-ffmpeg-hls-mux.c
            obs-ffmpeg-mux.c
+           obs-ffmpeg-mux.h
 diff --git a/plugins/obs-ffmpeg/cmake/legacy.cmake b/plugins/obs-ffmpeg/cmake/legacy.cmake
-index 5540676ea..62f2cc7a1 100644
+index 4cc75b341..d2e11965d 100644
 --- a/plugins/obs-ffmpeg/cmake/legacy.cmake
 +++ b/plugins/obs-ffmpeg/cmake/legacy.cmake
 @@ -40,6 +40,7 @@ target_sources(
@@ -44,10 +44,10 @@ index 5540676ea..62f2cc7a1 100644
            obs-ffmpeg-output.c
            obs-ffmpeg-mux.c
 diff --git a/plugins/obs-ffmpeg/data/locale/en-US.ini b/plugins/obs-ffmpeg/data/locale/en-US.ini
-index 55bbe919d..0363ed82b 100644
+index 9652be160..e18e39f5a 100644
 --- a/plugins/obs-ffmpeg/data/locale/en-US.ini
 +++ b/plugins/obs-ffmpeg/data/locale/en-US.ini
-@@ -109,4 +109,7 @@ NVENC.CheckDrivers="Try installing the latest <a href=\"https://obsproject.com/g
+@@ -120,4 +120,7 @@ NVENC.CheckDrivers="Try installing the latest <a href=\"https://obsproject.com/g
  
  AV1.8bitUnsupportedHdr="OBS does not support 8-bit output of Rec. 2100."
  
@@ -322,10 +322,10 @@ index 000000000..179a61ccf
 +	.get_video_info = h264_video_info,
 +};
 diff --git a/plugins/obs-ffmpeg/obs-ffmpeg.c b/plugins/obs-ffmpeg/obs-ffmpeg.c
-index da0b2c2b4..a01a729c8 100644
+index 7eb9a876d..fcce8ec3b 100644
 --- a/plugins/obs-ffmpeg/obs-ffmpeg.c
 +++ b/plugins/obs-ffmpeg/obs-ffmpeg.c
-@@ -39,6 +39,7 @@ extern struct obs_encoder_info pcm24_encoder_info;
+@@ -38,6 +38,7 @@ extern struct obs_encoder_info pcm24_encoder_info;
  extern struct obs_encoder_info pcm32_encoder_info;
  extern struct obs_encoder_info alac_encoder_info;
  extern struct obs_encoder_info flac_encoder_info;
@@ -333,7 +333,7 @@ index da0b2c2b4..a01a729c8 100644
  extern struct obs_encoder_info h264_nvenc_encoder_info;
  #ifdef ENABLE_HEVC
  extern struct obs_encoder_info hevc_nvenc_encoder_info;
-@@ -387,6 +388,7 @@ bool obs_module_load(void)
+@@ -382,6 +383,7 @@ bool obs_module_load(void)
  	obs_register_output(&ffmpeg_hls_muxer);
  	obs_register_output(&replay_buffer);
  	obs_register_encoder(&aac_encoder_info);
@@ -342,5 +342,5 @@ index da0b2c2b4..a01a729c8 100644
  	register_encoder_if_available(&aom_av1_encoder_info, "libaom-av1");
  	obs_register_encoder(&opus_encoder_info);
 -- 
-2.39.2
+2.41.0
 
