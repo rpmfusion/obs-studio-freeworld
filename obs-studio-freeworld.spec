@@ -49,16 +49,12 @@ Patch0103:      0003-UI-Add-support-for-OpenH264-as-the-worst-case-fallba.patch
 
 
 # Downstream Fedora patches
-## Use system qrcodegencpp
-#Patch1001:      obs-studio-websocket-use-system-qrcodegencpp.patch
-## Add license declarations for bundled deps
-#Patch9001:      obs-studio-deps-Add-license-declaration-files.patch
-## Add license declaration for obs-qsv11
-#Patch9002:      obs-studio-obs-qsv11-Add-license-declaration-file.patch
+## Downgrade to CMake 3.20 for RHEL 9 compatibility
+Patch1001:      obs-studio-30-cmake-3.20.patch
 
 
 BuildRequires:  gcc
-BuildRequires:  cmake >= 3.16
+BuildRequires:  cmake >= 3.20
 BuildRequires:  ninja-build
 BuildRequires:  libappstream-glib
 BuildRequires:  desktop-file-utils
