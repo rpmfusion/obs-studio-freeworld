@@ -40,11 +40,11 @@ Patch0103:      0003-UI-Add-support-for-OpenH264-as-the-worst-case-fallba.patch
 
 # Downstream Fedora patches
 ## Use system qrcodegencpp
-Patch1001:      obs-studio-websocket-use-system-qrcodegencpp.patch
+#Patch1001:      obs-studio-websocket-use-system-qrcodegencpp.patch
 ## Add license declarations for bundled deps
-Patch9001:      obs-studio-deps-Add-license-declaration-files.patch
+#Patch9001:      obs-studio-deps-Add-license-declaration-files.patch
 ## Add license declaration for obs-qsv11
-Patch9002:      obs-studio-obs-qsv11-Add-license-declaration-file.patch
+#Patch9002:      obs-studio-obs-qsv11-Add-license-declaration-file.patch
 
 
 BuildRequires:  gcc
@@ -221,7 +221,7 @@ cp deps/libcaption/LICENSE.txt .fedora-rpm/licenses/deps/libcaption-LICENSE.txt
 cp plugins/obs-qsv11/QSV11-License-Clarification-Email.txt .fedora-rpm/licenses/plugins/QSV11-License-Clarification-Email.txt
 cp deps/uthash/uthash/LICENSE .fedora-rpm/licenses/deps/uthash-LICENSE
 cp deps/blake2/LICENSE.blake2 .fedora-rpm/licenses/deps/
-cp deps/libff/LICENSE.libff .fedora-rpm/licenses/deps/
+#cp deps/libff/LICENSE.libff .fedora-rpm/licenses/deps/
 cp deps/media-playback/LICENSE.media-playback .fedora-rpm/licenses/deps/
 cp libobs/graphics/libnsgif/LICENSE.libnsgif .fedora-rpm/licenses/deps/
 cp libobs/util/simde/LICENSE.simde .fedora-rpm/licenses/deps/
