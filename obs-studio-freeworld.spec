@@ -5,6 +5,16 @@
 %bcond_without lua_scripting
 %endif
 
+%ifarch x86_64
+# VPL/QSV is only available on x86_64
+%bcond_without vpl
+%else
+%bcond_with vpl
+%endif
+
+%bcond_without vlc
+%bcond_without x264
+
 %global obswebsocket_version 5.3.3
 %global origname obs-studio
 
@@ -62,6 +72,7 @@ BuildRequires:  freetype-devel
 BuildRequires:  jansson-devel >= 2.5
 BuildRequires:  json-devel
 BuildRequires:  libcurl-devel
+BuildRequires:  libdatachannel-devel
 BuildRequires:  libdrm-devel
 BuildRequires:  libGL-devel
 BuildRequires:  libglvnd-devel
@@ -79,6 +90,9 @@ BuildRequires:  libxkbcommon-devel
 BuildRequires:  luajit-devel
 %endif
 BuildRequires:  mbedtls-devel
+%if %{with vpl}
+BuildRequires:  oneVPL-devel
+%endif
 BuildRequires:  pciutils-devel
 BuildRequires:  pipewire-devel
 BuildRequires:  pipewire-jack-audio-connection-kit-devel
@@ -92,8 +106,15 @@ BuildRequires:  qt6-qtwayland-devel
 BuildRequires:  speexdsp-devel
 BuildRequires:  swig
 BuildRequires:  systemd-devel
+%if %{with vlc}
+BuildRequires:  vlc-devel
+%endif
 BuildRequires:  wayland-devel
 BuildRequires:  websocketpp-devel
+%if %{with x264}
+BuildRequires:  x264-devel
+%endif
+
 
 # Ensure QtWayland is installed when libwayland-client is installed
 Requires:      (qt6-qtwayland%{?_isa} if libwayland-client%{?_isa})
@@ -234,6 +255,9 @@ cp plugins/obs-qsv11/obs-qsv11-LICENSE.txt .fedora-rpm/licenses/plugins/
        -DUNIX_STRUCTURE=1 -GNinja \
        -DCMAKE_SKIP_RPATH=1 \
        -DBUILD_BROWSER=OFF \
+%if ! %{with vlc}
+       -DENABLE_VLC=OFF \
+%endif
        -DENABLE_JACK=ON \
        -DENABLE_LIBFDK=ON \
        -DENABLE_AJA=OFF \
