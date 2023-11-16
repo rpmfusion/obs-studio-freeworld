@@ -25,12 +25,12 @@
 
 Name:           obs-studio-freeworld
 Version:        30.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
 # OBS itself is GPL-2.0-or-later, while various plugin dependencies are of various other licenses
 # The licenses for those dependencies are captured with the bundled provides statements
-License:        GPL-2.0-or-later and ISC and MIT and BSD-1-Clause and BSD-2-Clause and BSD-3-Clause and BSL-1.0 and LGPL-2.1-or-later and CC0-1.0 and (CC0-1.0 or OpenSSL or Apache-2.0) and LicenseRef-Fedora-Public-Domain and (BSD-3-Clause or GPL-2.0-only)
+License:        GPL-2.0-or-later and MIT and BSD-1-Clause and BSD-2-Clause and BSD-3-Clause and BSL-1.0 and LGPL-2.1-or-later and CC0-1.0 and (CC0-1.0 or OpenSSL or Apache-2.0) and LicenseRef-Fedora-Public-Domain and (BSD-3-Clause or GPL-2.0-only)
 URL:            https://obsproject.com/
 %if 0%{?snapdate}
 Source0:        https://github.com/obsproject/obs-studio/archive/%{commit}/%{origname}-%{commit}.tar.gz
@@ -43,14 +43,16 @@ Source1:        https://github.com/obsproject/obs-websocket/archive/%{obswebsock
 
 # Proposed upstream
 ## From: https://github.com/obsproject/obs-studio/pull/8529
-Patch0101:      0001-UI-Consistently-reference-the-software-H264-encoder-.patch
-Patch0102:      0002-obs-ffmpeg-Add-initial-support-for-the-OpenH264-H.26.patch
-Patch0103:      0003-UI-Add-support-for-OpenH264-as-the-worst-case-fallba.patch
+Patch0101:      0101-UI-Consistently-reference-the-software-H264-encoder-.patch
+Patch0102:      0102-obs-ffmpeg-Add-initial-support-for-the-OpenH264-H.26.patch
+Patch0103:      0103-UI-Add-support-for-OpenH264-as-the-worst-case-fallba.patch
 
 
 # Downstream Fedora patches
 ## Downgrade to CMake 3.20 for RHEL 9 compatibility
 Patch1001:      obs-studio-30-cmake-3.20.patch
+## Use fdk-aac by default
+Patch1002:      obs-studio-UI-use-fdk-aac-by-default.patch
 
 
 BuildRequires:  gcc
@@ -130,8 +132,6 @@ Provides:      bundled(blake2)
 Provides:      bundled(json11)
 ## License: MIT
 Provides:      bundled(libcaption)
-## License: ISC
-Provides:      bundled(libff)
 ## License: BSD-1-Clause
 Provides:      bundled(uthash)
 ## License: BSD-3-Clause
@@ -244,7 +244,6 @@ cp deps/libcaption/LICENSE.txt .fedora-rpm/licenses/deps/libcaption-LICENSE.txt
 cp plugins/obs-qsv11/QSV11-License-Clarification-Email.txt .fedora-rpm/licenses/plugins/QSV11-License-Clarification-Email.txt
 cp deps/uthash/uthash/LICENSE .fedora-rpm/licenses/deps/uthash-LICENSE
 cp deps/blake2/LICENSE.blake2 .fedora-rpm/licenses/deps/
-#cp deps/libff/LICENSE.libff .fedora-rpm/licenses/deps/
 cp deps/media-playback/LICENSE.media-playback .fedora-rpm/licenses/deps/
 cp libobs/graphics/libnsgif/LICENSE.libnsgif .fedora-rpm/licenses/deps/
 cp libobs/util/simde/LICENSE.simde .fedora-rpm/licenses/deps/
@@ -290,6 +289,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Thu Nov 16 2023 Dominik Mierzejewski <dominik@greysector.net> - 30.0.0-2
+- sync with Fedora
+
 * Wed Nov 15 2023 Nicolas Chauvet <kwizart@gmail.com> - 30.0.0-1
 - Update to 30.0.0
 
