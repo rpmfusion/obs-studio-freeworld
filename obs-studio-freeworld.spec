@@ -12,7 +12,6 @@
 %bcond_with vpl
 %endif
 
-%bcond_without vlc
 %bcond_without x264
 
 %global obswebsocket_version 5.3.3
@@ -25,7 +24,7 @@
 
 Name:           obs-studio-freeworld
 Version:        30.0.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
 # OBS itself is GPL-2.0-or-later, while various plugin dependencies are of various other licenses
@@ -104,9 +103,6 @@ BuildRequires:  qt6-qtwayland-devel
 BuildRequires:  speexdsp-devel
 BuildRequires:  swig
 BuildRequires:  systemd-devel
-%if %{with vlc}
-BuildRequires:  vlc-devel
-%endif
 BuildRequires:  wayland-devel
 BuildRequires:  websocketpp-devel
 %if %{with x264}
@@ -173,30 +169,6 @@ streaming or recording AVC/H.264 video.
 
 # --------------------------------------------------------------------------
 
-%package -n obs-studio-plugin-vlc-video
-Summary:        Open Broadcaster Software Studio - VLC-based video plugin
-License:        GPL-2.0-or-later
-BuildRequires:  vlc-devel
-# We dlopen() libvlc
-Requires:       libvlc.so.%{libvlc_soversion}%{?lib64_suffix}
-Requires:       obs-studio%{?_isa} >= %{version}
-Supplements:    obs-studio%{?_isa}
-
-
-%description -n obs-studio-plugin-vlc-video
-Open Broadcaster Software is free and open source software
-for video recording and live streaming.
-
-This package contains the plugin for using VLC to embed video
-as an overlay in a video stream or recording.
-
-%files -n obs-studio-plugin-vlc-video
-%license COPYING
-%{_libdir}/obs-plugins/vlc-video.so
-%{_datadir}/obs/obs-plugins/vlc-video/
-
-# --------------------------------------------------------------------------
-
 
 %prep
 %setup -q -n %{origname}-%{?snapdate:%{commit}}%{!?snapdate:%{version_no_tilde}}
@@ -256,9 +228,7 @@ cp plugins/obs-qsv11/obs-qsv11-LICENSE.txt .fedora-rpm/licenses/plugins/
        -DUNIX_STRUCTURE=1 -GNinja \
        -DCMAKE_SKIP_RPATH=1 \
        -DBUILD_BROWSER=OFF \
-%if ! %{with vlc}
        -DENABLE_VLC=OFF \
-%endif
        -DENABLE_JACK=ON \
        -DENABLE_LIBFDK=ON \
        -DENABLE_AJA=OFF \
@@ -278,8 +248,6 @@ mkdir -p preserve/%{_datadir}/obs/obs-plugins
 # Preserve plugin files to install
 mv %{buildroot}%{_libdir}/obs-plugins/obs-x264.so preserve/%{_libdir}/obs-plugins
 mv %{buildroot}%{_datadir}/obs/obs-plugins/obs-x264 preserve/%{_datadir}/obs/obs-plugins
-mv %{buildroot}%{_libdir}/obs-plugins/vlc-video.so preserve/%{_libdir}/obs-plugins
-mv %{buildroot}%{_datadir}/obs/obs-plugins/vlc-video preserve/%{_datadir}/obs/obs-plugins
 
 # Purge installed buildroot
 rm -rf %{buildroot}/*
@@ -289,6 +257,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Fri Dec 15 2023 Neal Gompa <ngompa@fedoraproject.org> - 30.0.0-3
+- Drop vlc video plugin as it moved to Fedora
+
 * Thu Nov 16 2023 Dominik Mierzejewski <dominik@greysector.net> - 30.0.0-2
 - sync with Fedora
 
