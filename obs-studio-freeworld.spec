@@ -24,7 +24,7 @@
 
 Name:           obs-studio-freeworld
 Version:        30.0.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
 # OBS itself is GPL-2.0-or-later, while various plugin dependencies are of various other licenses
@@ -257,6 +257,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Sun Feb 04 2024 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 30.0.0-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
+
 * Fri Dec 15 2023 Neal Gompa <ngompa@fedoraproject.org> - 30.0.0-3
 - Drop vlc video plugin as it moved to Fedora
 
