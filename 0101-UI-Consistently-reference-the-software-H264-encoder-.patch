@@ -1,4 +1,4 @@
-From dfa857eceb0deaf1a273fbd3423364fd7268ea90 Mon Sep 17 00:00:00 2001
+From f6bc114c7d80f6344353619f51d9584ad022d91b Mon Sep 17 00:00:00 2001
 From: Neal Gompa <neal@gompa.dev>
 Date: Sat, 7 Jan 2023 23:15:13 -0500
 Subject: [PATCH 101/103] UI: Consistently reference the software H264 encoder
@@ -15,11 +15,11 @@ the encoder string to indicate that it's an H.264 encoder from x264.
  4 files changed, 10 insertions(+), 9 deletions(-)
 
 diff --git a/UI/data/locale/en-US.ini b/UI/data/locale/en-US.ini
-index e62f38a26..339ac4d86 100644
+index 9c3f38777..dd8f20f69 100644
 --- a/UI/data/locale/en-US.ini
 +++ b/UI/data/locale/en-US.ini
-@@ -996,7 +996,7 @@ Basic.Settings.Output.Simple.Warn.Encoder="Warning: Recording with a software en
- Basic.Settings.Output.Simple.Warn.Lossless="Warning: Lossless quality generates tremendously large file sizes! Lossless quality can use upward of 7 gigabytes of disk space per minute at high resolutions and framerates. Lossless is not recommended for long recordings unless you have a very large amount of disk space available."
+@@ -997,7 +997,7 @@ Basic.Settings.Output.Simple.Warn.Encoder="Warning: Recording with a software en
+ Basic.Settings.Output.Simple.Warn.Lossless="Warning: Lossless quality generates tremendously large file sizes! Lossless quality can use upward of 7 gigabytes of disk space per minute at high resolutions and framerates. Lossless is not recommended for long recordings unless you have a very large amount of disk space available. Replay buffer is unavailable when using lossless quality."
  Basic.Settings.Output.Simple.Warn.Lossless.Msg="Are you sure you want to use lossless quality?"
  Basic.Settings.Output.Simple.Warn.Lossless.Title="Lossless quality warning!"
 -Basic.Settings.Output.Simple.Encoder.Software="Software (x264)"
@@ -27,7 +27,7 @@ index e62f38a26..339ac4d86 100644
  Basic.Settings.Output.Simple.Encoder.Hardware.QSV.H264="Hardware (QSV, H.264)"
  Basic.Settings.Output.Simple.Encoder.Hardware.QSV.AV1="Hardware (QSV, AV1)"
  Basic.Settings.Output.Simple.Encoder.Hardware.AMD.H264="Hardware (AMD, H.264)"
-@@ -1007,7 +1007,7 @@ Basic.Settings.Output.Simple.Encoder.Hardware.NVENC.AV1="Hardware (NVENC, AV1)"
+@@ -1008,7 +1008,7 @@ Basic.Settings.Output.Simple.Encoder.Hardware.NVENC.AV1="Hardware (NVENC, AV1)"
  Basic.Settings.Output.Simple.Encoder.Hardware.NVENC.HEVC="Hardware (NVENC, HEVC)"
  Basic.Settings.Output.Simple.Encoder.Hardware.Apple.H264="Hardware (Apple, H.264)"
  Basic.Settings.Output.Simple.Encoder.Hardware.Apple.HEVC="Hardware (Apple, HEVC)"
@@ -68,10 +68,10 @@ index 7d7c4278e..a8b5d884a 100644
  
  	auto newLabel = [this](const char *str) -> QLabel * {
 diff --git a/UI/window-basic-settings-stream.cpp b/UI/window-basic-settings-stream.cpp
-index 2ad275a44..e2ba4b677 100644
+index e28c5b189..de306efa9 100644
 --- a/UI/window-basic-settings-stream.cpp
 +++ b/UI/window-basic-settings-stream.cpp
-@@ -1670,7 +1670,7 @@ void OBSBasicSettings::ResetEncoders(bool streamOnly)
+@@ -1704,7 +1704,7 @@ void OBSBasicSettings::ResetEncoders(bool streamOnly)
  
  #define ENCODER_STR(str) QTStr("Basic.Settings.Output.Simple.Encoder." str)
  
@@ -81,10 +81,10 @@ index 2ad275a44..e2ba4b677 100644
  #ifdef _WIN32
  	if (service_supports_encoder(vcodecs, "obs_qsv11"))
 diff --git a/UI/window-basic-settings.cpp b/UI/window-basic-settings.cpp
-index b1e6bd6fb..ddf0adc56 100644
+index bee2c86ed..efb98c4ef 100644
 --- a/UI/window-basic-settings.cpp
 +++ b/UI/window-basic-settings.cpp
-@@ -5237,10 +5237,11 @@ void OBSBasicSettings::FillSimpleRecordingValues()
+@@ -5303,10 +5303,11 @@ void OBSBasicSettings::FillSimpleRecordingValues()
  	ADD_QUALITY("HQ");
  	ADD_QUALITY("Lossless");
  
@@ -100,5 +100,5 @@ index b1e6bd6fb..ddf0adc56 100644
  		ui->simpleOutRecEncoder->addItem(
  			ENCODER_STR("Hardware.QSV.H264"),
 -- 
-2.41.0
+2.44.0
 

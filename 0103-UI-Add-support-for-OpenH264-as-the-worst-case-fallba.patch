@@ -1,4 +1,4 @@
-From f26c32b97117273550b9dddea01b5b92684c6886 Mon Sep 17 00:00:00 2001
+From d5d1837245fb9a2f0dfc863c27f8ac77ea9625cd Mon Sep 17 00:00:00 2001
 From: Neal Gompa <neal@gompa.dev>
 Date: Tue, 28 Mar 2023 05:08:49 -0400
 Subject: [PATCH 103/103] UI: Add support for OpenH264 as the worst-case
@@ -21,11 +21,11 @@ available.
  10 files changed, 123 insertions(+), 48 deletions(-)
 
 diff --git a/UI/data/locale/en-US.ini b/UI/data/locale/en-US.ini
-index 339ac4d86..ff8c649da 100644
+index dd8f20f69..6a8e4e1e7 100644
 --- a/UI/data/locale/en-US.ini
 +++ b/UI/data/locale/en-US.ini
-@@ -996,6 +996,7 @@ Basic.Settings.Output.Simple.Warn.Encoder="Warning: Recording with a software en
- Basic.Settings.Output.Simple.Warn.Lossless="Warning: Lossless quality generates tremendously large file sizes! Lossless quality can use upward of 7 gigabytes of disk space per minute at high resolutions and framerates. Lossless is not recommended for long recordings unless you have a very large amount of disk space available."
+@@ -997,6 +997,7 @@ Basic.Settings.Output.Simple.Warn.Encoder="Warning: Recording with a software en
+ Basic.Settings.Output.Simple.Warn.Lossless="Warning: Lossless quality generates tremendously large file sizes! Lossless quality can use upward of 7 gigabytes of disk space per minute at high resolutions and framerates. Lossless is not recommended for long recordings unless you have a very large amount of disk space available. Replay buffer is unavailable when using lossless quality."
  Basic.Settings.Output.Simple.Warn.Lossless.Msg="Are you sure you want to use lossless quality?"
  Basic.Settings.Output.Simple.Warn.Lossless.Title="Lossless quality warning!"
 +Basic.Settings.Output.Simple.Encoder.Software.OpenH264.H264="Software (OpenH264)"
@@ -155,10 +155,10 @@ index a8b5d884a..e68a33bb5 100644
  
  	auto newLabel = [this](const char *str) -> QLabel * {
 diff --git a/UI/window-basic-auto-config.cpp b/UI/window-basic-auto-config.cpp
-index d8ddbfa44..4707a5644 100644
+index f992c0719..d97a188f5 100644
 --- a/UI/window-basic-auto-config.cpp
 +++ b/UI/window-basic-auto-config.cpp
-@@ -979,6 +979,7 @@ AutoConfig::AutoConfig(QWidget *parent) : QWizard(parent)
+@@ -982,6 +982,7 @@ AutoConfig::AutoConfig(QWidget *parent) : QWizard(parent)
  	streamPage->ui->bitrate->setValue(bitrate);
  	streamPage->ServiceChanged();
  
@@ -166,7 +166,7 @@ index d8ddbfa44..4707a5644 100644
  	TestHardwareEncoding();
  	if (!hardwareEncodingAvailable) {
  		delete streamPage->ui->preferHardware;
-@@ -1007,6 +1008,16 @@ AutoConfig::~AutoConfig()
+@@ -1010,6 +1011,16 @@ AutoConfig::~AutoConfig()
  	EnableThreadedMessageBoxes(false);
  }
  
@@ -183,7 +183,7 @@ index d8ddbfa44..4707a5644 100644
  void AutoConfig::TestHardwareEncoding()
  {
  	size_t idx = 0;
-@@ -1086,8 +1097,10 @@ inline const char *AutoConfig::GetEncoderId(Encoder enc)
+@@ -1089,8 +1100,10 @@ inline const char *AutoConfig::GetEncoderId(Encoder enc)
  		return SIMPLE_ENCODER_AMD;
  	case Encoder::Apple:
  		return SIMPLE_ENCODER_APPLE_H264;
@@ -224,10 +224,10 @@ index 5d966c795..c17e32a85 100644
  	bool CanTestServer(const char *server);
  
 diff --git a/UI/window-basic-main-outputs.cpp b/UI/window-basic-main-outputs.cpp
-index a283d0fcc..4b3f25371 100644
+index f87e16dcd..0466cdff6 100644
 --- a/UI/window-basic-main-outputs.cpp
 +++ b/UI/window-basic-main-outputs.cpp
-@@ -547,7 +547,9 @@ void SimpleOutput::LoadStreamingPreset_Lossy(const char *encoderId)
+@@ -552,7 +552,9 @@ void SimpleOutput::LoadStreamingPreset_Lossy(const char *encoderId)
  /* mistakes have been made to lead us to this. */
  const char *get_simple_output_encoder(const char *encoder)
  {
@@ -238,7 +238,7 @@ index a283d0fcc..4b3f25371 100644
  		return "obs_x264";
  	} else if (strcmp(encoder, SIMPLE_ENCODER_X264_LOWCPU) == 0) {
  		return "obs_x264";
-@@ -581,7 +583,7 @@ const char *get_simple_output_encoder(const char *encoder)
+@@ -586,7 +588,7 @@ const char *get_simple_output_encoder(const char *encoder)
  #endif
  	}
  
@@ -371,10 +371,10 @@ index f9d3f4ea1..27899efc4 100644
  			}
  #endif
 diff --git a/UI/window-basic-main.cpp b/UI/window-basic-main.cpp
-index 943e8cac1..09251de75 100644
+index 0621d039c..c39266e9f 100644
 --- a/UI/window-basic-main.cpp
 +++ b/UI/window-basic-main.cpp
-@@ -1449,6 +1449,8 @@ extern void CheckExistingCookieId();
+@@ -1469,6 +1469,8 @@ extern void CheckExistingCookieId();
  #define DEFAULT_CONTAINER "fragmented_mp4"
  #endif
  
@@ -383,7 +383,7 @@ index 943e8cac1..09251de75 100644
  bool OBSBasic::InitBasicConfigDefaults()
  {
  	QList<QScreen *> screens = QGuiApplication::screens();
-@@ -1619,7 +1621,10 @@ bool OBSBasic::InitBasicConfigDefaults()
+@@ -1654,7 +1656,10 @@ bool OBSBasic::InitBasicConfigDefaults()
  	config_set_default_bool(basicConfig, "AdvOut", "UseRescale", false);
  	config_set_default_uint(basicConfig, "AdvOut", "TrackIndex", 1);
  	config_set_default_uint(basicConfig, "AdvOut", "VodTrackIndex", 2);
@@ -395,7 +395,7 @@ index 943e8cac1..09251de75 100644
  
  	config_set_default_string(basicConfig, "AdvOut", "RecType", "Standard");
  
-@@ -1744,7 +1749,6 @@ bool OBSBasic::InitBasicConfigDefaults()
+@@ -1780,7 +1785,6 @@ bool OBSBasic::InitBasicConfigDefaults()
  	return true;
  }
  
@@ -403,7 +403,7 @@ index 943e8cac1..09251de75 100644
  extern bool update_nvenc_presets(ConfigFile &config);
  
  void OBSBasic::InitBasicConfigDefaults2()
-@@ -1753,12 +1757,14 @@ void OBSBasic::InitBasicConfigDefaults2()
+@@ -1789,12 +1793,14 @@ void OBSBasic::InitBasicConfigDefaults2()
  					      "Pre23Defaults");
  	bool useNV = EncoderAvailable("ffmpeg_nvenc") && !oldEncDefaults;
  
@@ -422,7 +422,7 @@ index 943e8cac1..09251de75 100644
  
  	const char *aac_default = "ffmpeg_aac";
  	if (EncoderAvailable("CoreAudio_AAC"))
-@@ -2040,7 +2046,7 @@ void OBSBasic::OBSInit()
+@@ -2076,7 +2082,7 @@ void OBSBasic::OBSInit()
  
  	InitBasicConfigDefaults2();
  
@@ -432,7 +432,7 @@ index 943e8cac1..09251de75 100644
  	blog(LOG_INFO, STARTUP_SEPARATOR);
  
 diff --git a/UI/window-basic-main.hpp b/UI/window-basic-main.hpp
-index b1eb39592..7d9e8d286 100644
+index 8c4104c11..2349d791a 100644
 --- a/UI/window-basic-main.hpp
 +++ b/UI/window-basic-main.hpp
 @@ -69,6 +69,7 @@ class OBSBasicVCamConfig;
@@ -443,7 +443,7 @@ index b1eb39592..7d9e8d286 100644
  #define SIMPLE_ENCODER_QSV "qsv"
  #define SIMPLE_ENCODER_QSV_AV1 "qsv_av1"
  #define SIMPLE_ENCODER_NVENC "nvenc"
-@@ -446,7 +447,7 @@ private:
+@@ -448,7 +449,7 @@ private:
  	void DeleteProfile(const char *profile_name, const char *profile_dir);
  	void RefreshProfiles();
  	void ChangeProfile();
@@ -453,10 +453,10 @@ index b1eb39592..7d9e8d286 100644
  	void SaveProjectNow();
  
 diff --git a/UI/window-basic-settings-stream.cpp b/UI/window-basic-settings-stream.cpp
-index e2ba4b677..a08c697d4 100644
+index de306efa9..64e6c4b14 100644
 --- a/UI/window-basic-settings-stream.cpp
 +++ b/UI/window-basic-settings-stream.cpp
-@@ -1437,7 +1437,9 @@ static QString get_adv_fallback(const QString &enc)
+@@ -1471,7 +1471,9 @@ static QString get_adv_fallback(const QString &enc)
  		return "com.apple.videotoolbox.videoencoder.ave.avc";
  	if (enc == "obs_qsv11_av1")
  		return "obs_qsv11";
@@ -467,7 +467,7 @@ index e2ba4b677..a08c697d4 100644
  }
  
  static QString get_adv_audio_fallback(const QString &enc)
-@@ -1466,7 +1468,9 @@ static QString get_simple_fallback(const QString &enc)
+@@ -1500,7 +1502,9 @@ static QString get_simple_fallback(const QString &enc)
  		return SIMPLE_ENCODER_APPLE_H264;
  	if (enc == SIMPLE_ENCODER_QSV_AV1)
  		return SIMPLE_ENCODER_QSV;
@@ -478,7 +478,7 @@ index e2ba4b677..a08c697d4 100644
  }
  
  bool OBSBasicSettings::ServiceSupportsCodecCheck()
-@@ -1670,8 +1674,12 @@ void OBSBasicSettings::ResetEncoders(bool streamOnly)
+@@ -1704,8 +1708,12 @@ void OBSBasicSettings::ResetEncoders(bool streamOnly)
  
  #define ENCODER_STR(str) QTStr("Basic.Settings.Output.Simple.Encoder." str)
  
@@ -494,10 +494,10 @@ index e2ba4b677..a08c697d4 100644
  	if (service_supports_encoder(vcodecs, "obs_qsv11"))
  		ui->simpleOutStrEncoder->addItem(
 diff --git a/UI/window-basic-settings.cpp b/UI/window-basic-settings.cpp
-index ddf0adc56..9b7324ab9 100644
+index efb98c4ef..65d173caf 100644
 --- a/UI/window-basic-settings.cpp
 +++ b/UI/window-basic-settings.cpp
-@@ -3779,6 +3779,11 @@ void OBSBasicSettings::SaveOutputSettings()
+@@ -3843,6 +3843,11 @@ void OBSBasicSettings::SaveOutputSettings()
           do. This only exists to make sure that the x264 preset doesn't
           get overwritten with empty data. */
  		presetType = "ApplePreset";
@@ -509,7 +509,7 @@ index ddf0adc56..9b7324ab9 100644
  	else
  		presetType = "Preset";
  
-@@ -5237,11 +5242,16 @@ void OBSBasicSettings::FillSimpleRecordingValues()
+@@ -5303,11 +5308,16 @@ void OBSBasicSettings::FillSimpleRecordingValues()
  	ADD_QUALITY("HQ");
  	ADD_QUALITY("Lossless");
  
@@ -531,7 +531,7 @@ index ddf0adc56..9b7324ab9 100644
  	if (EncoderAvailable("obs_qsv11"))
  		ui->simpleOutRecEncoder->addItem(
  			ENCODER_STR("Hardware.QSV.H264"),
-@@ -5414,6 +5424,9 @@ void OBSBasicSettings::SimpleStreamingEncoderChanged()
+@@ -5480,6 +5490,9 @@ void OBSBasicSettings::SimpleStreamingEncoderChanged()
  
  		defaultPreset = "balanced";
  		preset = curAMDAV1Preset;
@@ -542,5 +542,5 @@ index ddf0adc56..9b7324ab9 100644
  
  #define PRESET_STR(val) \
 -- 
-2.41.0
+2.44.0
 
