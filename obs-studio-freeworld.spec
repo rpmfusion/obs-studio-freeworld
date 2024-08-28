@@ -14,7 +14,7 @@
 
 %bcond_without x264
 
-%global obswebsocket_version 5.4.2
+%global obswebsocket_version 5.5.1
 %global origname obs-studio
 
 %if "%{__isa_bits}" == "64"
@@ -23,13 +23,13 @@
 %global libvlc_soversion 5
 
 Name:           obs-studio-freeworld
-Version:        30.1.1
-Release:        2%{?dist}
+Version:        30.2.2
+Release:        1%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
 # OBS itself is GPL-2.0-or-later, while various plugin dependencies are of various other licenses
 # The licenses for those dependencies are captured with the bundled provides statements
-License:        GPL-2.0-or-later and MIT and BSD-1-Clause and BSD-2-Clause and BSD-3-Clause and BSL-1.0 and LGPL-2.1-or-later and CC0-1.0 and (CC0-1.0 or OpenSSL or Apache-2.0) and LicenseRef-Fedora-Public-Domain and (BSD-3-Clause or GPL-2.0-only)
+License:        GPL-2.0-or-later and MIT and BSD-2-Clause and BSD-3-Clause and BSL-1.0 and LGPL-2.1-or-later and CC0-1.0 and (CC0-1.0 or OpenSSL or Apache-2.0) and LicenseRef-Fedora-Public-Domain and (BSD-3-Clause or GPL-2.0-only)
 URL:            https://obsproject.com/
 %if 0%{?snapdate}
 Source0:        https://github.com/obsproject/obs-studio/archive/%{commit}/%{origname}-%{commit}.tar.gz
@@ -88,6 +88,7 @@ BuildRequires:  libxkbcommon-devel
 BuildRequires:  luajit-devel
 %endif
 BuildRequires:  mbedtls-devel
+BuildRequires:  nv-codec-headers
 %if %{with vpl}
 BuildRequires:  oneVPL-devel
 %endif
@@ -104,6 +105,7 @@ BuildRequires:  qt6-qtwayland-devel
 BuildRequires:  speexdsp-devel
 BuildRequires:  swig
 BuildRequires:  systemd-devel
+BuildRequires:  uthash-devel
 BuildRequires:  wayland-devel
 BuildRequires:  websocketpp-devel
 %if %{with x264}
@@ -129,8 +131,6 @@ Provides:      bundled(blake2)
 Provides:      bundled(json11)
 ## License: MIT
 Provides:      bundled(libcaption)
-## License: BSD-1-Clause
-Provides:      bundled(uthash)
 ## License: BSD-3-Clause
 Provides:      bundled(rnnoise)
 ## License: LGPL-2.1-or-later and LicenseRef-Fedora-Public-Domain
@@ -215,7 +215,6 @@ cp plugins/obs-outputs/librtmp/COPYING .fedora-rpm/licenses/deps/librtmp-COPYING
 cp deps/json11/LICENSE.txt .fedora-rpm/licenses/deps/json11-LICENSE.txt
 cp deps/libcaption/LICENSE.txt .fedora-rpm/licenses/deps/libcaption-LICENSE.txt
 cp plugins/obs-qsv11/QSV11-License-Clarification-Email.txt .fedora-rpm/licenses/plugins/QSV11-License-Clarification-Email.txt
-cp deps/uthash/uthash/LICENSE .fedora-rpm/licenses/deps/uthash-LICENSE
 cp deps/blake2/LICENSE.blake2 .fedora-rpm/licenses/deps/
 cp deps/media-playback/LICENSE.media-playback .fedora-rpm/licenses/deps/
 cp libobs/graphics/libnsgif/LICENSE.libnsgif .fedora-rpm/licenses/deps/
@@ -258,6 +257,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Wed Aug 28 2024 Dominik Mierzejewski <dominik@greysector.net> - 30.2.2-1
+- Update to 30.2.2
+
 * Fri Aug 02 2024 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 30.1.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_41_Mass_Rebuild
 

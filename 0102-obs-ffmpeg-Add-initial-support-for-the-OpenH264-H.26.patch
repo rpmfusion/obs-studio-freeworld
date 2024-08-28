@@ -1,4 +1,4 @@
-From 7e13a4f5b407650b0eeacbc2322ec9fa7825828c Mon Sep 17 00:00:00 2001
+From 26c2915af0b4cd707d7dbbf7b579eca3c520852f Mon Sep 17 00:00:00 2001
 From: Neal Gompa <neal@gompa.dev>
 Date: Sun, 26 Mar 2023 06:06:31 -0400
 Subject: [PATCH 102/103] obs-ffmpeg: Add initial support for the OpenH264
@@ -20,10 +20,10 @@ software codecs provided through FFmpeg.
  create mode 100644 plugins/obs-ffmpeg/obs-ffmpeg-h264.c
 
 diff --git a/plugins/obs-ffmpeg/CMakeLists.txt b/plugins/obs-ffmpeg/CMakeLists.txt
-index 77c5ad8e4..81b847889 100644
+index 4a928c82c..c4dcb17a5 100644
 --- a/plugins/obs-ffmpeg/CMakeLists.txt
 +++ b/plugins/obs-ffmpeg/CMakeLists.txt
-@@ -32,6 +32,7 @@ target_sources(
+@@ -33,6 +33,7 @@ target_sources(
            obs-ffmpeg-av1.c
            obs-ffmpeg-compat.h
            obs-ffmpeg-formats.h
@@ -32,7 +32,7 @@ index 77c5ad8e4..81b847889 100644
            obs-ffmpeg-mux.c
            obs-ffmpeg-mux.h
 diff --git a/plugins/obs-ffmpeg/cmake/legacy.cmake b/plugins/obs-ffmpeg/cmake/legacy.cmake
-index 0b3491a07..d22734264 100644
+index 558a34df6..2a3b9d29b 100644
 --- a/plugins/obs-ffmpeg/cmake/legacy.cmake
 +++ b/plugins/obs-ffmpeg/cmake/legacy.cmake
 @@ -41,6 +41,7 @@ target_sources(
@@ -44,10 +44,10 @@ index 0b3491a07..d22734264 100644
            obs-ffmpeg-output.c
            obs-ffmpeg-output.h
 diff --git a/plugins/obs-ffmpeg/data/locale/en-US.ini b/plugins/obs-ffmpeg/data/locale/en-US.ini
-index 9652be160..e18e39f5a 100644
+index e8b73293c..c69d3475f 100644
 --- a/plugins/obs-ffmpeg/data/locale/en-US.ini
 +++ b/plugins/obs-ffmpeg/data/locale/en-US.ini
-@@ -120,4 +120,7 @@ NVENC.CheckDrivers="Try installing the latest <a href=\"https://obsproject.com/g
+@@ -121,4 +121,7 @@ NVENC.CheckDrivers="Try installing the latest <a href=\"https://obsproject.com/g
  
  AV1.8bitUnsupportedHdr="OBS does not support 8-bit output of Rec. 2100."
  
@@ -322,7 +322,7 @@ index 000000000..179a61ccf
 +	.get_video_info = h264_video_info,
 +};
 diff --git a/plugins/obs-ffmpeg/obs-ffmpeg.c b/plugins/obs-ffmpeg/obs-ffmpeg.c
-index 451b4f022..ee2e378bf 100644
+index c20281f63..118468c94 100644
 --- a/plugins/obs-ffmpeg/obs-ffmpeg.c
 +++ b/plugins/obs-ffmpeg/obs-ffmpeg.c
 @@ -41,6 +41,7 @@ extern struct obs_encoder_info pcm24_encoder_info;
@@ -333,7 +333,7 @@ index 451b4f022..ee2e378bf 100644
  extern struct obs_encoder_info h264_nvenc_encoder_info;
  #ifdef ENABLE_HEVC
  extern struct obs_encoder_info hevc_nvenc_encoder_info;
-@@ -364,6 +365,7 @@ bool obs_module_load(void)
+@@ -367,6 +368,7 @@ bool obs_module_load(void)
  	obs_register_output(&ffmpeg_hls_muxer);
  	obs_register_output(&replay_buffer);
  	obs_register_encoder(&aac_encoder_info);
@@ -342,5 +342,5 @@ index 451b4f022..ee2e378bf 100644
  	register_encoder_if_available(&aom_av1_encoder_info, "libaom-av1");
  	obs_register_encoder(&opus_encoder_info);
 -- 
-2.44.0
+2.45.2
 
