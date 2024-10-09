@@ -1,29 +1,31 @@
 %ifarch %{power64} s390x
 # LuaJIT is not available for POWER and IBM Z
-%bcond_with lua_scripting
+%bcond lua_scripting 0
 %else
-%bcond_without lua_scripting
+%bcond lua_scripting 1
 %endif
 
 %ifarch x86_64
 # VPL/QSV is only available on x86_64
-%bcond_without vpl
+%bcond vpl 1
 %else
-%bcond_with vpl
+%bcond vpl 0
 %endif
 
-%bcond_without x264
-
-%global obswebsocket_version 5.5.1
-%global origname obs-studio
+# CEF is not packaged yet...
+%bcond cef 0
 
 %if "%{__isa_bits}" == "64"
 %global lib64_suffix ()(64bit)
 %endif
 %global libvlc_soversion 5
 
+
+%global obswebsocket_version 5.5.3
+%global origname obs-studio
+
 Name:           obs-studio-freeworld
-Version:        30.2.2
+Version:        31.0.0~beta1
 Release:        1%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
@@ -41,11 +43,12 @@ Source1:        https://github.com/obsproject/obs-websocket/archive/%{obswebsock
 # Backports from upstream
 
 # Proposed upstream
+## From: https://github.com/obsproject/obs-studio/pull/11345
+Patch0100:      https://github.com/obsproject/obs-studio/pull/11345.patch
 ## From: https://github.com/obsproject/obs-studio/pull/8529
 Patch0101:      0101-UI-Consistently-reference-the-software-H264-encoder-.patch
 Patch0102:      0102-obs-ffmpeg-Add-initial-support-for-the-OpenH264-H.26.patch
 Patch0103:      0103-UI-Add-support-for-OpenH264-as-the-worst-case-fallba.patch
-
 
 # Downstream Fedora patches
 ## Use fdk-aac by default
@@ -53,7 +56,6 @@ Patch1001:      obs-studio-UI-use-fdk-aac-by-default.patch
 ## Fix error: passing argument 4 of ‘query_dmabuf_modifiers’ from
 ##            incompatible pointer type [-Wincompatible-pointer-types]
 Patch1003:      obs-studio-fix-incompatible-pointer-type.patch
-
 
 BuildRequires:  gcc
 BuildRequires:  cmake >= 3.22
@@ -70,7 +72,7 @@ BuildRequires:  freetype-devel
 BuildRequires:  jansson-devel >= 2.5
 BuildRequires:  json-devel
 BuildRequires:  libcurl-devel
-BuildRequires:  libdatachannel-devel
+BuildRequires:  libdatachannel-devel >= 0.20
 BuildRequires:  libdrm-devel
 BuildRequires:  libGL-devel
 BuildRequires:  libglvnd-devel
@@ -102,15 +104,14 @@ BuildRequires:  qt6-qtbase-devel
 BuildRequires:  qt6-qtbase-private-devel
 BuildRequires:  qt6-qtsvg-devel
 BuildRequires:  qt6-qtwayland-devel
+BuildRequires:  rnnoise-devel
 BuildRequires:  speexdsp-devel
 BuildRequires:  swig
 BuildRequires:  systemd-devel
 BuildRequires:  uthash-devel
 BuildRequires:  wayland-devel
 BuildRequires:  websocketpp-devel
-%if %{with x264}
 BuildRequires:  x264-devel
-%endif
 
 
 # Ensure QtWayland is installed when libwayland-client is installed
@@ -152,7 +153,6 @@ software for video recording and live streaming.
 %package -n obs-studio-plugin-x264
 Summary:        Open Broadcaster Software Studio - x264 encoding plugin
 License:        GPL-2.0-or-later
-BuildRequires:  x264-devel
 Requires:       obs-studio%{?_isa} >= %{version}
 Supplements:    obs-studio%{?_isa}
 
@@ -177,13 +177,6 @@ streaming or recording AVC/H.264 video.
 tar -xf %{SOURCE1} -C plugins/obs-websocket --strip-components=1
 %autopatch -p1
 
-# rpmlint reports E: hardcoded-library-path
-# replace OBS_MULTIARCH_SUFFIX by LIB_SUFFIX
-sed -e 's|OBS_MULTIARCH_SUFFIX|LIB_SUFFIX|g' -i cmake/Modules/ObsHelpers.cmake
-
-# Kill rpath settings
-sed -e '\|set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OBS_LIBRARY_DESTINATION}")|d' -i cmake/Modules/ObsHelpers_Linux.cmake
-
 # touch the missing submodules
 touch plugins/obs-browser/CMakeLists.txt
 
@@ -192,10 +185,6 @@ touch plugins/obs-browser/CMakeLists.txt
 mv plugins/obs-qsv11/CMakeLists.txt plugins/obs-qsv11/CMakeLists.txt.disabled
 touch plugins/obs-qsv11/CMakeLists.txt
 %endif
-
-# remove -Werror flag to mitigate FTBFS with ffmpeg 5.1
-sed -e 's|-Werror-implicit-function-declaration||g' -i cmake/Modules/CompilerConfig.cmake
-sed -e '/-Werror/d' -i cmake/Modules/CompilerConfig.cmake
 
 # Removing unused third-party deps
 rm -rf deps/w32-pthreads
@@ -216,7 +205,6 @@ cp deps/json11/LICENSE.txt .fedora-rpm/licenses/deps/json11-LICENSE.txt
 cp deps/libcaption/LICENSE.txt .fedora-rpm/licenses/deps/libcaption-LICENSE.txt
 cp plugins/obs-qsv11/QSV11-License-Clarification-Email.txt .fedora-rpm/licenses/plugins/QSV11-License-Clarification-Email.txt
 cp deps/blake2/LICENSE.blake2 .fedora-rpm/licenses/deps/
-cp deps/media-playback/LICENSE.media-playback .fedora-rpm/licenses/deps/
 cp libobs/graphics/libnsgif/LICENSE.libnsgif .fedora-rpm/licenses/deps/
 cp libobs/util/simde/LICENSE.simde .fedora-rpm/licenses/deps/
 cp plugins/decklink/LICENSE.decklink-sdk .fedora-rpm/licenses/deps
@@ -224,16 +212,19 @@ cp plugins/obs-qsv11/obs-qsv11-LICENSE.txt .fedora-rpm/licenses/plugins/
 
 
 %build
-%cmake -DOBS_VERSION_OVERRIDE=%{version_no_tilde} \
+%cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+       -DOBS_VERSION_OVERRIDE=%{version_no_tilde} \
+       -DCMAKE_COMPILE_WARNING_AS_ERROR=OFF \
        -DUNIX_STRUCTURE=1 -GNinja \
-       -DCMAKE_SKIP_RPATH=1 \
-       -DBUILD_BROWSER=OFF \
+%if ! %{with cef}
+       -DENABLE_BROWSER=OFF \
+%endif
        -DENABLE_VLC=OFF \
        -DENABLE_JACK=ON \
        -DENABLE_LIBFDK=ON \
        -DENABLE_AJA=OFF \
 %if ! %{with lua_scripting}
-       -DDISABLE_LUA=ON \
+       -DENABLE_SCRIPTING_LUA=OFF \
 %endif
        -DOpenGL_GL_PREFERENCE=GLVND
 %cmake_build
@@ -241,6 +232,10 @@ cp plugins/obs-qsv11/obs-qsv11-LICENSE.txt .fedora-rpm/licenses/plugins/
 
 %install
 %cmake_install
+
+# Work around broken libobs.pc file...
+# Cf. https://github.com/obsproject/obs-studio/issues/7972
+sed -e 's|^Cflags: .*|Cflags: -I${includedir} -DHAVE_OBSCONFIG_H|' -i %{buildroot}%{_libdir}/pkgconfig/libobs.pc
 
 mkdir -p preserve/%{_libdir}/obs-plugins
 mkdir -p preserve/%{_datadir}/obs/obs-plugins
@@ -257,6 +252,10 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Wed Aug 28 2024 Dominik Mierzejewski <dominik@greysector.net> - 31.0.0~beta1-1
+- Update to 31.0.0~beta1
+- Sync spec and patches with Fedora
+
 * Wed Aug 28 2024 Dominik Mierzejewski <dominik@greysector.net> - 30.2.2-1
 - Update to 30.2.2
 
