@@ -1,4 +1,4 @@
-From 2cabb9f3399cece71265c0ce74fca1aafc9dc46c Mon Sep 17 00:00:00 2001
+From aedf69c2e8b2c84dab50dcbb669f42ffec815692 Mon Sep 17 00:00:00 2001
 From: Neal Gompa <neal@gompa.dev>
 Date: Tue, 28 Mar 2023 05:08:49 -0400
 Subject: [PATCH 103/103] UI: Add support for OpenH264 as the worst-case
@@ -14,14 +14,14 @@ available.
  UI/window-basic-auto-config.hpp      |  3 ++
  UI/window-basic-main-outputs.cpp     |  6 ++--
  UI/window-basic-main-profiles.cpp    | 31 +++++++++++--------
- UI/window-basic-main.cpp             | 15 ++++++---
+ UI/window-basic-main.cpp             | 13 ++++++--
  UI/window-basic-main.hpp             |  3 +-
  UI/window-basic-settings-stream.cpp  | 12 ++++++--
  UI/window-basic-settings.cpp         | 16 ++++++++--
- 10 files changed, 108 insertions(+), 41 deletions(-)
+ 10 files changed, 107 insertions(+), 40 deletions(-)
 
 diff --git a/UI/data/locale/en-US.ini b/UI/data/locale/en-US.ini
-index 29e752896..b22bae9c5 100644
+index 2065dbc48..9507d78a6 100644
 --- a/UI/data/locale/en-US.ini
 +++ b/UI/data/locale/en-US.ini
 @@ -1034,6 +1034,7 @@ Basic.Settings.Output.Simple.Warn.Encoder="Warning: Recording with a software en
@@ -150,10 +150,10 @@ index d941e6f68..5b5051919 100644
  
  	auto newLabel = [this](const char *str) -> QLabel * {
 diff --git a/UI/window-basic-auto-config.cpp b/UI/window-basic-auto-config.cpp
-index eaed589ae..1c6035566 100644
+index 6b1667609..d64eb6bd1 100644
 --- a/UI/window-basic-auto-config.cpp
 +++ b/UI/window-basic-auto-config.cpp
-@@ -1055,6 +1055,8 @@ AutoConfig::AutoConfig(QWidget *parent) : QWizard(parent)
+@@ -1044,6 +1044,8 @@ AutoConfig::AutoConfig(QWidget *parent) : QWizard(parent)
  	streamPage->ui->useMultitrackVideo->setChecked(hardwareEncodingAvailable && multitrackVideoEnabled);
  	streamPage->ServiceChanged();
  
@@ -162,7 +162,7 @@ index eaed589ae..1c6035566 100644
  	if (!hardwareEncodingAvailable) {
  		delete streamPage->ui->preferHardware;
  		streamPage->ui->preferHardware = nullptr;
-@@ -1080,6 +1082,16 @@ AutoConfig::~AutoConfig()
+@@ -1069,6 +1071,16 @@ AutoConfig::~AutoConfig()
  	EnableThreadedMessageBoxes(false);
  }
  
@@ -179,7 +179,7 @@ index eaed589ae..1c6035566 100644
  void AutoConfig::TestHardwareEncoding()
  {
  	size_t idx = 0;
-@@ -1155,8 +1167,10 @@ inline const char *AutoConfig::GetEncoderId(Encoder enc)
+@@ -1144,8 +1156,10 @@ inline const char *AutoConfig::GetEncoderId(Encoder enc)
  		return SIMPLE_ENCODER_AMD;
  	case Encoder::Apple:
  		return SIMPLE_ENCODER_APPLE_H264;
@@ -220,7 +220,7 @@ index 7e31bdf89..a97545153 100644
  	bool CanTestServer(const char *server);
  
 diff --git a/UI/window-basic-main-outputs.cpp b/UI/window-basic-main-outputs.cpp
-index 291f6cf76..6b4adf298 100644
+index 30d203174..5a1bde826 100644
 --- a/UI/window-basic-main-outputs.cpp
 +++ b/UI/window-basic-main-outputs.cpp
 @@ -546,7 +546,9 @@ void SimpleOutput::LoadStreamingPreset_Lossy(const char *encoderId)
@@ -244,19 +244,19 @@ index 291f6cf76..6b4adf298 100644
  
  void SimpleOutput::LoadRecordingPreset()
 diff --git a/UI/window-basic-main-profiles.cpp b/UI/window-basic-main-profiles.cpp
-index 559170e5e..0081611b8 100644
+index 9b346e8d4..75c3e06e9 100644
 --- a/UI/window-basic-main-profiles.cpp
 +++ b/UI/window-basic-main-profiles.cpp
-@@ -670,7 +670,7 @@ void OBSBasic::ActivateProfile(const OBSProfile &profile, bool reset)
- 		ResetProfileData();
- 	}
- 
+@@ -736,7 +736,7 @@ void OBSBasic::ActivateProfile(const OBSProfile &profile, bool reset)
+ void OBSBasic::UpdateProfileEncoders()
+ {
+ 	InitBasicConfigDefaults2();
 -	CheckForSimpleModeX264Fallback();
 +	CheckForSimpleModeH264Fallback();
+ }
  
- 	RefreshProfiles();
- 
-@@ -741,10 +741,11 @@ std::vector<std::string> OBSBasic::GetRestartRequirements(const ConfigFile &conf
+ void OBSBasic::ResetProfileData()
+@@ -784,10 +784,11 @@ std::vector<std::string> OBSBasic::GetRestartRequirements(const ConfigFile &conf
  	return result;
  }
  
@@ -269,7 +269,7 @@ index 559170e5e..0081611b8 100644
  	bool qsv_supported = false;
  	bool qsv_av1_supported = false;
  	bool amd_supported = false;
-@@ -761,7 +762,9 @@ void OBSBasic::CheckForSimpleModeX264Fallback()
+@@ -804,7 +805,9 @@ void OBSBasic::CheckForSimpleModeX264Fallback()
  	const char *id;
  
  	while (obs_enum_encoder_types(idx++, &id)) {
@@ -280,7 +280,7 @@ index 559170e5e..0081611b8 100644
  			amd_supported = true;
  		else if (strcmp(id, "obs_qsv11") == 0)
  			qsv_supported = true;
-@@ -784,69 +787,71 @@ void OBSBasic::CheckForSimpleModeX264Fallback()
+@@ -827,69 +830,71 @@ void OBSBasic::CheckForSimpleModeX264Fallback()
  			apple_hevc_supported = true;
  #endif
  	}
@@ -363,10 +363,10 @@ index 559170e5e..0081611b8 100644
  			}
  #endif
 diff --git a/UI/window-basic-main.cpp b/UI/window-basic-main.cpp
-index 0616a5fa9..bb956110a 100644
+index 47cac8dcc..866c81d9e 100644
 --- a/UI/window-basic-main.cpp
 +++ b/UI/window-basic-main.cpp
-@@ -1576,6 +1576,8 @@ extern void CheckExistingCookieId();
+@@ -1586,6 +1586,8 @@ extern void CheckExistingCookieId();
  #define DEFAULT_CONTAINER "hybrid_mp4"
  #endif
  
@@ -375,7 +375,7 @@ index 0616a5fa9..bb956110a 100644
  bool OBSBasic::InitBasicConfigDefaults()
  {
  	QList<QScreen *> screens = QGuiApplication::screens();
-@@ -1737,7 +1739,9 @@ bool OBSBasic::InitBasicConfigDefaults()
+@@ -1747,7 +1749,9 @@ bool OBSBasic::InitBasicConfigDefaults()
  	config_set_default_bool(activeConfiguration, "AdvOut", "UseRescale", false);
  	config_set_default_uint(activeConfiguration, "AdvOut", "TrackIndex", 1);
  	config_set_default_uint(activeConfiguration, "AdvOut", "VodTrackIndex", 2);
@@ -386,7 +386,7 @@ index 0616a5fa9..bb956110a 100644
  
  	config_set_default_string(activeConfiguration, "AdvOut", "RecType", "Standard");
  
-@@ -1855,10 +1859,13 @@ void OBSBasic::InitBasicConfigDefaults2()
+@@ -1865,10 +1869,13 @@ void OBSBasic::InitBasicConfigDefaults2()
  	bool oldEncDefaults = config_get_bool(App()->GetUserConfig(), "General", "Pre23Defaults");
  	bool useNV = EncoderAvailable("ffmpeg_nvenc") && !oldEncDefaults;
  
@@ -402,17 +402,8 @@ index 0616a5fa9..bb956110a 100644
  
  	const char *aac_default = "ffmpeg_aac";
  	if (EncoderAvailable("CoreAudio_AAC"))
-@@ -2121,7 +2128,7 @@ void OBSBasic::OBSInit()
- 
- 	InitBasicConfigDefaults2();
- 
--	CheckForSimpleModeX264Fallback();
-+	CheckForSimpleModeH264Fallback();
- 
- 	LogEncoders();
- 
 diff --git a/UI/window-basic-main.hpp b/UI/window-basic-main.hpp
-index d04edfeff..c9bec0b6b 100644
+index 81bb7b478..45d51f919 100644
 --- a/UI/window-basic-main.hpp
 +++ b/UI/window-basic-main.hpp
 @@ -70,6 +70,7 @@ class OBSBasicVCamConfig;
@@ -423,8 +414,8 @@ index d04edfeff..c9bec0b6b 100644
  #define SIMPLE_ENCODER_QSV "qsv"
  #define SIMPLE_ENCODER_QSV_AV1 "qsv_av1"
  #define SIMPLE_ENCODER_NVENC "nvenc"
-@@ -1303,7 +1304,7 @@ private:
- 	void ActivateProfile(const OBSProfile &profile, bool reset = false);
+@@ -1304,7 +1305,7 @@ private:
+ 	void UpdateProfileEncoders();
  	std::vector<std::string> GetRestartRequirements(const ConfigFile &config) const;
  	void ResetProfileData();
 -	void CheckForSimpleModeX264Fallback();
@@ -470,7 +461,7 @@ index 7296d7328..0d296abbc 100644
  	if (service_supports_encoder(vcodecs, "obs_qsv11"))
  		ui->simpleOutStrEncoder->addItem(ENCODER_STR("Hardware.QSV.H264"), QString(SIMPLE_ENCODER_QSV));
 diff --git a/UI/window-basic-settings.cpp b/UI/window-basic-settings.cpp
-index 1c77f804b..25b5f940a 100644
+index 334213699..6954b0627 100644
 --- a/UI/window-basic-settings.cpp
 +++ b/UI/window-basic-settings.cpp
 @@ -3364,6 +3364,11 @@ void OBSBasicSettings::SaveOutputSettings()
@@ -511,5 +502,5 @@ index 1c77f804b..25b5f940a 100644
  
  #define PRESET_STR(val) QString(Str("Basic.Settings.Output.EncoderPreset." val)).arg(val)
 -- 
-2.46.2
+2.47.0
 

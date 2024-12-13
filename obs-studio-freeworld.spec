@@ -21,11 +21,11 @@
 %global libvlc_soversion 5
 
 
-%global obswebsocket_version 5.5.3
+%global obswebsocket_version 5.5.4
 %global origname obs-studio
 
 Name:           obs-studio-freeworld
-Version:        31.0.0~beta1
+Version:        31.0.0
 Release:        1%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
@@ -43,8 +43,6 @@ Source1:        https://github.com/obsproject/obs-websocket/archive/%{obswebsock
 # Backports from upstream
 
 # Proposed upstream
-## From: https://github.com/obsproject/obs-studio/pull/11345
-Patch0100:      https://github.com/obsproject/obs-studio/pull/11345.patch
 ## From: https://github.com/obsproject/obs-studio/pull/8529
 Patch0101:      0101-UI-Consistently-reference-the-software-H264-encoder-.patch
 Patch0102:      0102-obs-ffmpeg-Add-initial-support-for-the-OpenH264-H.26.patch
@@ -92,7 +90,7 @@ BuildRequires:  luajit-devel
 BuildRequires:  mbedtls-devel
 BuildRequires:  nv-codec-headers
 %if %{with vpl}
-BuildRequires:  oneVPL-devel
+BuildRequires:  libvpl-devel
 %endif
 BuildRequires:  pciutils-devel
 BuildRequires:  pipewire-devel
@@ -252,6 +250,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Fri Dec 13 2024 Dominik Mierzejewski <dominik@greysector.net> - 31.0.0-1
+- Update to 31.0.0 final
+
 * Wed Aug 28 2024 Dominik Mierzejewski <dominik@greysector.net> - 31.0.0~beta1-1
 - Update to 31.0.0~beta1
 - Sync spec and patches with Fedora
