@@ -54,6 +54,8 @@ Patch1001:      obs-studio-UI-use-fdk-aac-by-default.patch
 ## Fix error: passing argument 4 of ‘query_dmabuf_modifiers’ from
 ##            incompatible pointer type [-Wincompatible-pointer-types]
 Patch1003:      obs-studio-fix-incompatible-pointer-type.patch
+## Fix gcc-15 compile issue
+Patch1004:      add_missing_include.patch
 
 BuildRequires:  gcc
 BuildRequires:  cmake >= 3.22
