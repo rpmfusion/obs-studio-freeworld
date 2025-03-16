@@ -21,12 +21,12 @@
 %global libvlc_soversion 5
 
 
-%global obswebsocket_version 5.5.4
+%global obswebsocket_version 5.5.5
 %global origname obs-studio
 
 Name:           obs-studio-freeworld
-Version:        31.0.0
-Release:        2%{?dist}
+Version:        31.0.2
+Release:        1%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
 # OBS itself is GPL-2.0-or-later, while various plugin dependencies are of various other licenses
@@ -252,6 +252,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Sun Mar 16 2025 Leigh Scott <leigh123linux@gmail.com> - 31.0.2-1
+- Update to 31.0.2
+
 * Tue Jan 28 2025 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 31.0.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_42_Mass_Rebuild
 
