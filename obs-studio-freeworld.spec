@@ -25,7 +25,7 @@
 %global origname obs-studio
 
 Name:           obs-studio-freeworld
-Version:        31.0.2
+Version:        31.0.3
 Release:        1%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
@@ -252,6 +252,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Fri Apr 11 2025 Sérgio Basto <sergio@serjux.com> - 31.0.3-1
+- Update obs-studio-freeworld to 31.0.3
+
 * Sun Mar 16 2025 Leigh Scott <leigh123linux@gmail.com> - 31.0.2-1
 - Update to 31.0.2
 
