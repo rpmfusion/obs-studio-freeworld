@@ -1,4 +1,4 @@
-%ifarch %{power64} s390x
+%ifarch %{power64} s390x riscv64
 # LuaJIT is not available for POWER and IBM Z
 %bcond lua_scripting 0
 %else
@@ -12,7 +12,7 @@
 %bcond vpl 0
 %endif
 
-# CEF is not packaged yet...
+# No need to build cef
 %bcond cef 0
 
 %if "%{__isa_bits}" == "64"
@@ -21,11 +21,11 @@
 %global libvlc_soversion 5
 
 
-%global obswebsocket_version 5.5.5
+%global obswebsocket_version 5.6.2
 %global origname obs-studio
 
 Name:           obs-studio-freeworld
-Version:        31.0.3
+Version:        31.1.0
 Release:        1%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
@@ -43,9 +43,10 @@ Source1:        https://github.com/obsproject/obs-websocket/archive/%{obswebsock
 # Backports from upstream
 
 # Proposed upstream
+## From: https://github.com/obsproject/obs-studio/pull/12326
+Patch0101:      0101-frontend-Consider-settings-changed-if-an-output-sett.patch
+Patch0102:      0102-frontend-Allow-invalid-recording-encoder-if-quality-.patch
 ## From: https://github.com/obsproject/obs-studio/pull/8529
-Patch0101:      0101-UI-Consistently-reference-the-software-H264-encoder-.patch
-Patch0102:      0102-obs-ffmpeg-Add-initial-support-for-the-OpenH264-H.26.patch
 Patch0103:      0103-UI-Add-support-for-OpenH264-as-the-worst-case-fallba.patch
 
 # Downstream Fedora patches
@@ -54,8 +55,6 @@ Patch1001:      obs-studio-UI-use-fdk-aac-by-default.patch
 ## Fix error: passing argument 4 of ‘query_dmabuf_modifiers’ from
 ##            incompatible pointer type [-Wincompatible-pointer-types]
 Patch1003:      obs-studio-fix-incompatible-pointer-type.patch
-## Fix gcc-15 compile issue
-Patch1004:      add_missing_include.patch
 
 BuildRequires:  gcc
 BuildRequires:  cmake >= 3.22
@@ -65,6 +64,7 @@ BuildRequires:  desktop-file-utils
 
 BuildRequires:  alsa-lib-devel
 BuildRequires:  asio-devel
+BuildRequires:  extra-cmake-modules
 BuildRequires:  fdk-aac-free-devel
 BuildRequires:  ffmpeg-devel
 BuildRequires:  fontconfig-devel
@@ -252,6 +252,12 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Fri Jul 11 2025 Dominik Mierzejewski <dominik@greysector.net> - 31.1.0-1
+- Update to 31.1.0 final
+- Update obs-websocket to 5.6.2
+- Rebase patches after upstream rework
+- Disable LuaJIT on riscv64 (not supported)
+
 * Fri Apr 11 2025 Sérgio Basto <sergio@serjux.com> - 31.0.3-1
 - Update obs-studio-freeworld to 31.0.3
 
