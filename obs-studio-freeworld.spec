@@ -25,7 +25,7 @@
 %global origname obs-studio
 
 Name:           obs-studio-freeworld
-Version:        31.1.0
+Version:        31.1.1
 Release:        1%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
@@ -252,6 +252,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Tue Jul 15 2025 Dominik Mierzejewski <dominik@greysector.net> - 31.1.1-1
+- Update to 31.1.1
+
 * Fri Jul 11 2025 Dominik Mierzejewski <dominik@greysector.net> - 31.1.0-1
 - Update to 31.1.0 final
 - Update obs-websocket to 5.6.2
