@@ -26,7 +26,7 @@
 
 Name:           obs-studio-freeworld
 Version:        31.1.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
 # OBS itself is GPL-2.0-or-later, while various plugin dependencies are of various other licenses
@@ -252,6 +252,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Sun Jul 27 2025 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 31.1.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_43_Mass_Rebuild
+
 * Tue Jul 15 2025 Dominik Mierzejewski <dominik@greysector.net> - 31.1.1-1
 - Update to 31.1.1
 
