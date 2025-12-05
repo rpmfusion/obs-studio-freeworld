@@ -21,12 +21,12 @@
 %global libvlc_soversion 5
 
 
-%global obswebsocket_version 5.6.2
+%global obswebsocket_version 5.6.3
 %global origname obs-studio
 
 Name:           obs-studio-freeworld
-Version:        31.1.1
-Release:        3%{?dist}
+Version:        32.0.2
+Release:        1%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
 # OBS itself is GPL-2.0-or-later, while various plugin dependencies are of various other licenses
@@ -106,6 +106,7 @@ BuildRequires:  qt6-qtbase-private-devel
 BuildRequires:  qt6-qtsvg-devel
 BuildRequires:  qt6-qtwayland-devel
 BuildRequires:  rnnoise-devel
+BuildRequires:  simde-devel
 BuildRequires:  speexdsp-devel
 BuildRequires:  swig
 BuildRequires:  systemd-devel
@@ -121,10 +122,6 @@ Requires:      (qt6-qtwayland%{?_isa} if libwayland-client%{?_isa})
 Requires:      hicolor-icon-theme
 
 # These are modified sources that can't be easily unbundled
-## License: MIT and CC0-1.0
-## Newer version in Fedora with the same licensing
-## Request filed upstream for fixing it: https://github.com/simd-everywhere/simde/issues/999
-Provides:      bundled(simde) = 0.7.1
 ## License: BSL-1.0
 Provides:      bundled(decklink-sdk)
 ## License: CC0-1.0 or OpenSSL or Apache-2.0
@@ -207,7 +204,6 @@ cp deps/libcaption/LICENSE.txt .fedora-rpm/licenses/deps/libcaption-LICENSE.txt
 cp plugins/obs-qsv11/QSV11-License-Clarification-Email.txt .fedora-rpm/licenses/plugins/QSV11-License-Clarification-Email.txt
 cp deps/blake2/LICENSE.blake2 .fedora-rpm/licenses/deps/
 cp libobs/graphics/libnsgif/LICENSE.libnsgif .fedora-rpm/licenses/deps/
-cp libobs/util/simde/LICENSE.simde .fedora-rpm/licenses/deps/
 cp plugins/decklink/LICENSE.decklink-sdk .fedora-rpm/licenses/deps
 cp plugins/obs-qsv11/obs-qsv11-LICENSE.txt .fedora-rpm/licenses/plugins/
 
@@ -253,6 +249,9 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Fri Dec 05 2025 Dominik Mierzejewski <dominik@greysector.net> - 32.0.2-1
+- Update to 32.0.2
+
 * Thu Sep 04 2025 Sérgio Basto <sergio@serjux.com> - 31.1.1-3
 - Rebuild for x264
 
