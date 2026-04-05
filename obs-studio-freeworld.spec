@@ -21,12 +21,12 @@
 %global libvlc_soversion 5
 
 
-%global obswebsocket_version 5.6.3
+%global obswebsocket_version 5.7.3
 %global origname obs-studio
 
 Name:           obs-studio-freeworld
-Version:        32.0.2
-Release:        2%{?dist}
+Version:        32.1.1
+Release:        1%{?dist}
 Summary:        Open Broadcaster Software Studio -- Freeworld plugins
 
 # OBS itself is GPL-2.0-or-later, while various plugin dependencies are of various other licenses
@@ -52,10 +52,8 @@ Patch0103:      0103-UI-Add-support-for-OpenH264-as-the-worst-case-fallba.patch
 # Downstream Fedora patches
 ## Use fdk-aac by default
 Patch1001:      obs-studio-UI-use-fdk-aac-by-default.patch
-## Fix error: passing argument 4 of ‘query_dmabuf_modifiers’ from
-##            incompatible pointer type [-Wincompatible-pointer-types]
-Patch1003:      obs-studio-fix-incompatible-pointer-type.patch
-Patch1004:      obs-studio-fix-build-against-qt-6-10.patch
+
+ExcludeArch:    %{ix86}
 
 BuildRequires:  gcc
 BuildRequires:  cmake >= 3.22
@@ -249,6 +247,10 @@ mv preserve/%{_prefix} %{buildroot}
 
 
 %changelog
+* Sun Apr 05 2026 Dominik Mierzejewski <dominik@greysector.net> - 32.1.1-1
+- Update to 32.1.1
+- Drop i686 build
+
 * Mon Feb 02 2026 RPM Fusion Release Engineering <sergiomb@rpmfusion.org> - 32.0.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_44_Mass_Rebuild
 
